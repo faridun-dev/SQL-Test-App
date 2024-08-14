@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:sql_test_app/data/db/todo_database.dart';
 import 'package:sql_test_app/data/models/todo_model.dart';
 
@@ -12,6 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final GlobalKey _keyDis = GlobalKey();
   late List<Todo> todos = [];
 
   Future refreshTodos() async {
@@ -89,35 +92,60 @@ class _HomePageState extends State<HomePage> {
       body: ListView.builder(
         itemCount: todos.length,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(
-              top: 10,
-              left: 12,
-              right: 12,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.amber,
-                borderRadius: BorderRadius.circular(12),
+          return Dismissible(
+            background: Padding(
+              padding: const EdgeInsets.only(
+                top: 10,
+                left: 12,
+                right: 12,
               ),
-              child: Column(
-                children: [
-                  Text(
-                    todos[index].title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            direction: DismissDirection.endToStart,
+            onDismissed: (direction) {
+              TodoDatabase.instance.delete(todos[index].id!);
+            },
+            key: ValueKey(todos[index]),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 10,
+                left: 12,
+                right: 12,
+              ),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.amber,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      todos[index].title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    todos[index].description,
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontSize: 20,
+                    Text(
+                      todos[index].description,
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 20,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
